@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"sync/atomic"
 )
@@ -20,7 +21,7 @@ func (cfg *apiConfig) middlewareMetricsInc(next http.Handler) http.Handler {
 
 func (a *apiConfig) Counts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	a.fileServerHits.Load()
+	fmt.Fprintf(w, "%d", a.fileServerHits.Load())
 }
 
 func myHandle(w http.ResponseWriter, r *http.Request) {
