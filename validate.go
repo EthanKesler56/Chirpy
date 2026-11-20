@@ -53,7 +53,7 @@ func validate_chirpy(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(200)
 	w.Write(val)
-	return
+
 }
 
 /*

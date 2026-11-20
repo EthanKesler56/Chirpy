@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -42,6 +41,7 @@ func main() {
 	mux.HandleFunc("GET /admin/metrics", apiCfg.handlerMetrics)
 	mux.HandleFunc("POST /admin/reset", apiCfg.handlerReset)
 	mux.HandleFunc("POST /api/validate_chirp", validate_chirpy)
+	mux.HandleFunc("POST /api/users", apiCfg.users)
 
 	srv := &http.Server{
 		Addr:    ":" + port,
@@ -52,6 +52,7 @@ func main() {
 	log.Fatal(srv.ListenAndServe())
 }
 
+/*
 func (cfg *apiConfig) handlerMetrics(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "text/html;")
 	w.WriteHeader(http.StatusOK)
@@ -64,3 +65,4 @@ func (cfg *apiConfig) middlewareMetricsInc(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+*/
