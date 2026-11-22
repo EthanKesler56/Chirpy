@@ -22,6 +22,8 @@ type chirp struct {
 
 func (cfg *apiConfig) createChirp(w http.ResponseWriter, r *http.Request) {
 
+	///DECODING SECTION
+
 	type returnvals struct {
 		Error string `json:"error"`
 	}
@@ -52,60 +54,34 @@ func (cfg *apiConfig) createChirp(w http.ResponseWriter, r *http.Request) {
 		w.Write(data)
 		return
 	}
-	//resp := database.CreateChirpParams{
-	//	Body:   params.Body,
-	//	UserID: params.User_id,
-	//}
-	resp := chirp{
-		ID: params.ID,
-		Created_at: params.Created_at,
-		Updated_at: params.Updated_at,
-		Body: params.Body,
-		User_id: params.User_id,
+	chirpParams := database.CreateChirpParams{
+		Body:   params.Body,
+		UserID: params.User_id,
 	}
 
-
-
-
-	dbChirp, err := cfg.db.CreateChirp(r.Context(), resp)
+	dbChirp, err := cfg.db.CreateChirp(r.Context(), chirpParams)
 	if err != nil {
 		log.Printf("Error with chirp: %v", err)
 		w.WriteHeader(500)
 		return
 	}
+	resp := chirp{
+		ID:         dbChirp.ID,
+		Created_at: dbChirp.CreatedAt,
+		Updated_at: dbChirp.UpdatedAt,
+		Body:       dbChirp.Body,
+		User_id:    dbChirp.UserID,
+	}
+
 	data, err := json.Marshal(resp)
 	if err != nil {
 		log.Printf("marshal failed %v", err)
 		w.WriteHeader(500)
 		return
+	}
 
-    }
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(201)
 	w.Write(data)
 
-/*
-
-	user, err := cfg.db.CreateUser(r.Context(), params.Email)
-	if err != nil {
-		log.Printf("Error creating user: %v", err)
-		w.WriteHeader(500)
-		return
-	}
-	resp := User{
-		ID:        uuid.UUID(user.ID),
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
-		Email:     user.Email,
-	}
-	data, err := json.Marshal(resp)
-	if err != nil {
-		log.Printf("marshal failed %v", err)
-		w.WriteHeader(500)
-		return
-
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(201)
-	w.Write(data)
-*/
+}
