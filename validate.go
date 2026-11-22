@@ -55,10 +55,3 @@ func validate_chirpy(w http.ResponseWriter, r *http.Request) {
 	w.Write(val)
 
 }
-
-/*
-  w.Header().Add("Content-Type", "text/plain; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(http.StatusText(http.StatusOK)))`
-
-*/
