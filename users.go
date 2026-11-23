@@ -1,6 +1,8 @@
 package main
 
 import (
+	"chirpy/internal/auth"
+	"chirpy/internal/database"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -21,7 +23,8 @@ func (cfg *apiConfig) users(w http.ResponseWriter, r *http.Request) {
 	///DECODING SECTION
 
 	type parameters struct {
-		Email string `json:"email"`
+		Password string `json:"password"`
+		Email    string `json:"email"`
 	}
 	type returnErr struct {
 		Error string `json:"error"`
@@ -43,10 +46,19 @@ func (cfg *apiConfig) users(w http.ResponseWriter, r *http.Request) {
 		w.Write(data)
 		return
 	}
+	hashedPassword, err := auth.HashPassword(params.Password)
+	if err != nil {
+		log.Printf("password hash failed")
+		w.WriteHeader(500)
+		return
+	}
+
 	// END OF DECODING SECTION
 
 	//CREATING USER SECTION
-	user, err := cfg.db.CreateUser(r.Context(), params.Email)
+	p := database.CreateUserParams{Email: params.Email, HashedPassword: hashedPassword}
+
+	user, err := cfg.db.CreateUser(r.Context(), p)
 	if err != nil {
 		log.Printf("Error creating user: %v", err)
 		w.WriteHeader(500)
