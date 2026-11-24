@@ -62,7 +62,7 @@ func TestWrongSecret(t *testing.T) {
 }
 
 func TestGetBearerToken(t *testing.T) {
-	test := []bearerTest{{name: "valid", authHeader: "bearerabc123", wantToken: "", wantError: false}, {name: "invalid", authHeader: " ", wantToken: "SOmething", wantError: false}, {name: "valid", authHeader: "beardef456", wantToken: "poggers", wantError: false}}
+	test := []bearerTest{{name: "valid", authHeader: "Bearer abc123", wantToken: "abc123", wantError: false}, {name: "invalid", authHeader: " ", wantToken: "", wantError: true}, {name: "valid", authHeader: "Bearer def456", wantToken: "def456", wantError: false}, {name: "missing header", authHeader: "", wantToken: "", wantError: true}}
 
 	for _, tc := range test {
 		t.Run(tc.name, func(t *testing.T) {
@@ -74,7 +74,12 @@ func TestGetBearerToken(t *testing.T) {
 			if (err != nil) != tc.wantError {
 				t.Fatalf("got err %v, wantErr %v,", err, tc.wantError)
 			}
+			if BearerToken != tc.wantToken {
+				t.Errorf("got token %q, want %q", BearerToken, tc.wantToken)
+			}
 
 		})
+
 	}
+
 }

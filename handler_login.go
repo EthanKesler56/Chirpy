@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"uuid"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 func (cfg *apiConfig) handler_login(w http.ResponseWriter, r *http.Request) {
@@ -46,13 +48,20 @@ func (cfg *apiConfig) handler_login(w http.ResponseWriter, r *http.Request) {
 		return
 
 	}
-	user := User{ID: uuid.UUID(getUser.ID), CreatedAt: getUser.CreatedAt, UpdatedAt: getUser.UpdatedAt, Email: getUser.Email}
+	token, err := auth.MakeJWT(getUser.ID, cfg.secret, time.Hour)
+	if err != nil {
+		http.Error(w, "couldn't create error", http.StatusInternalServerError)
+		return
+	}
+
+	user := User{ID: uuid.UUID(getUser.ID), CreatedAt: getUser.CreatedAt, UpdatedAt: getUser.UpdatedAt, Email: getUser.Email, Token: token}
 	data, err := json.Marshal(user)
 	if err != nil {
 		log.Printf("Marshal failed %v", err)
 		w.WriteHeader(500)
 		return
 	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 	w.Write(data)

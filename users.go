@@ -7,7 +7,8 @@ import (
 	"log"
 	"net/http"
 	"time"
-	"uuid"
+
+	"github.com/google/uuid"
 )
 
 // CREATING USER SECTION
@@ -16,6 +17,7 @@ type User struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	Email     string    `json:"email"`
+	Token     string    `json:"token,omitempty"`
 }
 
 func (cfg *apiConfig) users(w http.ResponseWriter, r *http.Request) {
@@ -65,7 +67,7 @@ func (cfg *apiConfig) users(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	resp := User{
-		ID:        uuid.UUID(user.ID),
+		ID:        user.ID,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
 		Email:     user.Email,
