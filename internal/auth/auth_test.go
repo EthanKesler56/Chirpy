@@ -1,11 +1,19 @@
 package auth
 
 import (
+	"net/http"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
 )
+
+type bearerTest struct {
+	name       string
+	authHeader string
+	wantToken  string
+	wantError  bool
+}
 
 func TestMakeJWT(t *testing.T) {
 	UserID := uuid.New()
@@ -51,4 +59,22 @@ func TestWrongSecret(t *testing.T) {
 		t.Fatalf("Wrong Secret!")
 	}
 
+}
+
+func TestGetBearerToken(t *testing.T) {
+	test := []bearerTest{{name: "valid", authHeader: "bearerabc123", wantToken: "", wantError: false}, {name: "invalid", authHeader: " ", wantToken: "SOmething", wantError: false}, {name: "valid", authHeader: "beardef456", wantToken: "poggers", wantError: false}}
+
+	for _, tc := range test {
+		t.Run(tc.name, func(t *testing.T) {
+			headers := http.Header{}
+			if tc.authHeader != "" {
+				headers.Set("Authorization", tc.authHeader)
+			}
+			BearerToken, err := GetBearerToken(headers)
+			if (err != nil) != tc.wantError {
+				t.Fatalf("got err %v, wantErr %v,", err, tc.wantError)
+			}
+
+		})
+	}
 }

@@ -16,6 +16,7 @@ import (
 type apiConfig struct {
 	fileserverHits atomic.Int32
 	db             *database.Queries
+	secret         string
 }
 
 func main() {
@@ -26,6 +27,7 @@ func main() {
 		log.Fatal("Error")
 	}
 	dbQueries := database.New(db)
+	server_secret := os.Getenv("SECRET")
 
 	const filepathRoot = "."
 	const port = "8080"
@@ -33,6 +35,7 @@ func main() {
 	apiCfg := apiConfig{
 		fileserverHits: atomic.Int32{},
 		db:             dbQueries,
+		secret:         server_secret,
 	}
 
 	mux := http.NewServeMux()
