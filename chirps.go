@@ -1,6 +1,7 @@
 package main
 
 import (
+	"chirpy/internal/auth"
 	"chirpy/internal/database"
 	"encoding/json"
 	"log"
@@ -21,16 +22,45 @@ type chirp struct {
 }
 
 func (cfg *apiConfig) createChirp(w http.ResponseWriter, r *http.Request) {
-
-	///DECODING SECTION
-
 	type returnvals struct {
 		Error string `json:"error"`
 	}
 
+	///GETTING TOKEN SECTION
+	token, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		log.Printf("Error getting token: %v", err)
+		vals := returnvals{Error: "Something went wrong"}
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(401)
+		data, err_two := json.Marshal(vals)
+		if err_two != nil {
+			log.Print(err_two)
+		}
+		w.Write(data)
+		return
+	}
+
+	//VALIDATING TOKEN SECTION
+	validate_token, err := auth.ValidateJWT(token, cfg.secret)
+	if err != nil {
+		log.Printf("Error validating token %v", err)
+		vals := returnvals{Error: "Something went wrong"}
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(401)
+		data, err_three := json.Marshal(vals)
+		if err_three != nil {
+			log.Print(err_three)
+
+		}
+		w.Write(data)
+		return
+	}
+
+	///DECODING SECTION
 	decoder := json.NewDecoder(r.Body)
 	params := chirp{}
-	err := decoder.Decode(&params)
+	err = decoder.Decode(&params)
 	vals := returnvals{Error: "Something went wrong"}
 	if err != nil {
 		w.Header().Add("Content-Type", "application/json")
@@ -56,7 +86,7 @@ func (cfg *apiConfig) createChirp(w http.ResponseWriter, r *http.Request) {
 	}
 	chirpParams := database.CreateChirpParams{
 		Body:   params.Body,
-		UserID: params.User_id,
+		UserID: validate_token,
 	}
 
 	dbChirp, err := cfg.db.CreateChirp(r.Context(), chirpParams)
