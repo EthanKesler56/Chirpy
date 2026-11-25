@@ -2,6 +2,7 @@ package main
 
 import (
 	"chirpy/internal/auth"
+	"chirpy/internal/database"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -54,7 +55,15 @@ func (cfg *apiConfig) handler_login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := User{ID: uuid.UUID(getUser.ID), CreatedAt: getUser.CreatedAt, UpdatedAt: getUser.UpdatedAt, Email: getUser.Email, Token: token}
+	refreshToken := auth.MakeRefreshToken()
+	_, err = cfg.db.RefreshToken(r.Context(), database.RefreshTokenParams{Token: refreshToken, UserID: getUser.ID, ExpiresAt: time.Now().Add(time.Hour * 1440)})
+	if err != nil {
+		log.Printf("refresh token error: %v", err)
+		w.WriteHeader(500)
+		return
+	}
+
+	user := User{ID: uuid.UUID(getUser.ID), CreatedAt: getUser.CreatedAt, UpdatedAt: getUser.UpdatedAt, Email: getUser.Email, Token: token, RefreshToken: refreshToken}
 	data, err := json.Marshal(user)
 	if err != nil {
 		log.Printf("Marshal failed %v", err)
