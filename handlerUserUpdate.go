@@ -19,10 +19,11 @@ func (cfg *apiConfig) handlerUserUpdate(w http.ResponseWriter, r *http.Request) 
 		Password string `json:"password"`
 	}
 	type response struct {
-		Id        uuid.UUID `json:"Id"`
-		CreatedAt time.Time `json:"created_at"`
-		UpdatedAt time.Time `json:"Updated_at"`
-		Email     string    `json:"email"`
+		Id          uuid.UUID `json:"id"`
+		CreatedAt   time.Time `json:"created_at"`
+		UpdatedAt   time.Time `json:"updated_at"`
+		Email       string    `json:"email"`
+		IsChirpyRed bool      `json:"is_chirpy_red"`
 	}
 
 	getToken, err := auth.GetBearerToken(r.Header)
@@ -59,7 +60,7 @@ func (cfg *apiConfig) handlerUserUpdate(w http.ResponseWriter, r *http.Request) 
 	}
 	//RAW RESPONSE
 
-	resp := response{Id: updateUser.ID, CreatedAt: updateUser.CreatedAt, UpdatedAt: updateUser.UpdatedAt, Email: updateUser.Email}
+	resp := response{Id: updateUser.ID, CreatedAt: updateUser.CreatedAt, UpdatedAt: updateUser.UpdatedAt, Email: updateUser.Email, IsChirpyRed: updateUser.IsChirpyRed}
 	data, err := json.Marshal(resp)
 	if err != nil {
 		log.Printf("marshal failed:%v", err)

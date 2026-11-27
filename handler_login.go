@@ -63,7 +63,7 @@ func (cfg *apiConfig) handler_login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := User{ID: uuid.UUID(getUser.ID), CreatedAt: getUser.CreatedAt, UpdatedAt: getUser.UpdatedAt, Email: getUser.Email, Token: token, RefreshToken: refreshToken}
+	user := User{ID: uuid.UUID(getUser.ID), CreatedAt: getUser.CreatedAt, UpdatedAt: getUser.UpdatedAt, Email: getUser.Email, Token: token, RefreshToken: refreshToken, IsChirpyRed: getUser.IsChirpyRed}
 	data, err := json.Marshal(user)
 	if err != nil {
 		log.Printf("Marshal failed %v", err)
