@@ -17,6 +17,7 @@ type apiConfig struct {
 	fileserverHits atomic.Int32
 	db             *database.Queries
 	secret         string
+	polkaSecret    string
 }
 
 func main() {
@@ -28,6 +29,7 @@ func main() {
 	}
 	dbQueries := database.New(db)
 	server_secret := os.Getenv("SECRET")
+	polka_secret := os.Getenv("POLKA_KEY")
 
 	const filepathRoot = "."
 	const port = "8080"
@@ -36,6 +38,7 @@ func main() {
 		fileserverHits: atomic.Int32{},
 		db:             dbQueries,
 		secret:         server_secret,
+		polkaSecret:    polka_secret,
 	}
 
 	mux := http.NewServeMux()

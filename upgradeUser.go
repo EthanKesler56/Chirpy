@@ -1,6 +1,7 @@
 package main
 
 import (
+	"chirpy/internal/auth"
 	"database/sql"
 	"encoding/json"
 	"errors"
@@ -10,6 +11,17 @@ import (
 )
 
 func (cfg *apiConfig) handlerUpgradeUser(w http.ResponseWriter, r *http.Request) {
+
+	getApiKey, err := auth.GetAPIKey(r.Header)
+	if err != nil {
+		http.Error(w, "Couldn't get apiKey", http.StatusUnauthorized)
+		return
+	}
+	if getApiKey != cfg.polkaSecret {
+		http.Error(w, "incorrect API key", http.StatusUnauthorized)
+		return
+	}
+
 	type parameters struct {
 		Event string `json:"event"`
 		Data  struct {
@@ -19,7 +31,7 @@ func (cfg *apiConfig) handlerUpgradeUser(w http.ResponseWriter, r *http.Request)
 
 	decoder := json.NewDecoder(r.Body)
 	params := parameters{}
-	err := decoder.Decode(&params)
+	err = decoder.Decode(&params)
 
 	if err != nil {
 		http.Error(w, "Bad Request", http.StatusBadRequest)
